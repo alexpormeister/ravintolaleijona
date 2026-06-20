@@ -369,7 +369,6 @@
 </head>
 
 <body>
-
   <nav>
     <a class="nav-logo" href="#">
       <div class="nav-logo-icon">🦁</div>
@@ -382,15 +381,12 @@
       <li><a href="#">Yhteystiedot</a></li>
     </ul>
   </nav>
-
   <div class="hero">
     <div class="hero-week" id="heroWeek">Ladataan...</div>
     <h1>Viikon <em>lounaslista</em></h1>
     <p class="hero-sub">Lounastarjoilu maanantaista perjantaihin klo 10.30–14.00</p>
   </div>
-
   <div class="day-nav" id="dayNav"></div>
-
   <div class="menu-content">
     <div id="menuGrid" class="menu-grid">
       <div class="loading">Ladataan ruokalistaa...</div>
@@ -416,9 +412,7 @@
       <div class="legend-item"><span class="badge badge-V">V</span> Vegaaninen</div>
     </div>
   </div>
-
   <footer>Ravintola Leijona &nbsp;·&nbsp; Aleksanterinkatu 12, Helsinki &nbsp;·&nbsp; p. 09 123 4567</footer>
-
   <script>
     const BADGE_TITLE = { L: 'Laktoositon', G: 'Gluteeniton', M: 'Maidoton', VEG: 'Kasvisruoka', V: 'Vegaaninen' };
     let active = 0;
@@ -427,6 +421,12 @@
     function getToday() {
       const d = new Date().getDay();
       return (d >= 1 && d <= 5) ? d - 1 : 0;
+    }
+
+    function parseTags(tags) {
+      if (!tags || tags === '') return [];
+      if (Array.isArray(tags)) return tags;
+      return tags.split(',').map(t => t.trim()).filter(Boolean);
     }
 
     function buildNav() {
@@ -449,19 +449,19 @@
         grid.innerHTML = '<div class="loading">Ei ruokalistaa tälle päivälle.</div>';
         return;
       }
-      grid.innerHTML = day.items.map(item => `
-    <div class="menu-item-card">
-      <div class="item-category">${item.category}</div>
-      <div class="item-name${!item.name ? ' empty' : ''}">${item.name || 'Ei ilmoitettu'}</div>
-      <div class="dietary-badges">${(item.dietary || []).map(d =>
-        `<span class="badge badge-${d}" title="${BADGE_TITLE[d] || d}">${d}</span>`
-      ).join('')}</div>
-    </div>
-  `).join('');
+      grid.innerHTML = day.items.map(item => {
+        const dietary = parseTags(item.tags || item.dietary);
+        return `
+      <div class="menu-item-card">
+        <div class="item-category">${item.category}</div>
+        <div class="item-name${!item.name ? ' empty' : ''}">${item.name || 'Ei ilmoitettu'}</div>
+        <div class="dietary-badges">${dietary.map(d =>
+          `<span class="badge badge-${d}" title="${BADGE_TITLE[d] || d}">${d}</span>`
+        ).join('')}</div>
+      </div>`;
+      }).join('');
     }
 
-    // Haetaan menu.json GitHubista (raw)
-    // cache-busting parametri estää vanhan version näyttämisen
     const MENU_URL = 'https://raw.githubusercontent.com/alexpormeister/ravintolaleijona/main/menu.json';
 
     fetch(MENU_URL + '?t=' + Date.now())
