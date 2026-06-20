@@ -140,17 +140,21 @@
     }
 
     .day-tab {
-      padding: 1rem 1.5rem;
+      padding: 0.875rem 1.25rem;
       font-size: 12px;
       font-weight: 500;
       text-transform: uppercase;
-      letter-spacing: 0.08em;
+      letter-spacing: 0.06em;
       color: rgba(240, 236, 228, 0.3);
       cursor: pointer;
       border-bottom: 2px solid transparent;
       white-space: nowrap;
       transition: all 0.2s;
       user-select: none;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
     }
 
     .day-tab:hover {
@@ -160,6 +164,19 @@
     .day-tab.active {
       color: #c8a96e;
       border-bottom-color: #c8a96e;
+    }
+
+    .day-tab-name {
+      font-size: 12px;
+    }
+
+    .day-tab-date {
+      font-size: 10px;
+      opacity: 0.6;
+    }
+
+    .day-tab.active .day-tab-date {
+      opacity: 1;
     }
 
     .menu-content {
@@ -357,8 +374,7 @@
       }
 
       .day-tab {
-        padding: 0.75rem 0.9rem;
-        font-size: 11px;
+        padding: 0.75rem 0.75rem;
       }
 
       .nav-links {
@@ -436,7 +452,10 @@
       MENU.days.forEach((day, i) => {
         const tab = document.createElement('div');
         tab.className = 'day-tab' + (i === active ? ' active' : '');
-        tab.textContent = day.name;
+        tab.innerHTML = `
+      <span class="day-tab-name">${day.name}</span>
+      ${day.date ? `<span class="day-tab-date">${day.date}</span>` : ''}
+    `;
         tab.addEventListener('click', () => { active = i; buildNav(); buildMenu(); });
         nav.appendChild(tab);
       });
